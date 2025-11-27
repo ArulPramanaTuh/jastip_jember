@@ -24,7 +24,7 @@
                 </div>
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
-                    <button type="submit" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg">
+                    <button type="submit" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition duration-200">
                         Logout
                     </button>
                 </form>
@@ -32,73 +32,112 @@
         </div>
     </nav>
 
+    <!-- Main Content -->
     <div class="container mx-auto px-4 py-8">
-        <h2 class="text-3xl font-bold text-gray-800 mb-6">Daftar User</h2>
+        <!-- Header dengan tombol kembali -->
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-3xl font-bold text-gray-800">Daftar User</h2>
+            <!-- <a href="{{ route('admin.dashboard') }}" class="bg-gray-600 hover:bg-gray-700 text-white px-6 py-2 rounded-lg transition duration-200 font-medium">
+                ← Kembali ke Dashboard
+            </a> -->
+        </div>
 
+        <!-- Success Message -->
+        @if(session('success'))
+            <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg mb-6">
+                {{ session('success') }}
+            </div>
+        @endif
+
+        <!-- Tabel User -->
         @if($users->count() > 0)
             <div class="overflow-x-auto bg-white rounded-xl shadow-lg">
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">
                         <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nama</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Email</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Dibuat</th>
-                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Aksi</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Dibuat</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
                         @foreach($users as $user)
-                            <tr>
-                                <td class="px-6 py-4 whitespace-nowrap">{{ $user->name }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap">{{ $user->email }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap">{{ $user->created_at->format('d M Y') }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-right">
-                                    <form method="POST" action="{{ route('admin.users.delete', $user->id) }}" class="inline">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="text-red-600 hover:text-red-900" onclick="return confirm('Yakin hapus user ini?')">
-                                            Hapus
-                                        </button>
-                                    </form>
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm font-medium text-gray-900">{{ $user->name }}</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900">{{ $user->email }}</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900">{{ $user->created_at->format('d M Y') }}</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    @if($user->is_active ?? true)
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                            Aktif
+                                        </span>
+                                    @else
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                                            Nonaktif
+                                        </span>
+                                    @endif
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                    <div class="flex justify-end gap-3">
+                                        <!-- Toggle Active/Inactive -->
+                                        @if($user->is_active ?? true)
+                                            <form method="POST" action="{{ route('admin.users.toggle', $user->id) }}" class="inline">
+                                                @csrf
+                                                @method('PATCH')
+                                                <button type="submit" class="text-orange-600 hover:text-orange-800 font-medium">
+                                                    Nonaktifkan
+                                                </button>
+                                            </form>
+                                        @else
+                                            <form method="POST" action="{{ route('admin.users.toggle', $user->id) }}" class="inline">
+                                                @csrf
+                                                @method('PATCH')
+                                                <button type="submit" class="text-green-600 hover:text-green-800 font-medium">
+                                                    Aktifkan
+                                                </button>
+                                            </form>
+                                        @endif
+
+                                        <!-- Hapus User -->
+                                        <form method="POST" action="{{ route('admin.users.delete', $user->id) }}" class="inline">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="text-red-600 hover:text-red-900 font-medium" onclick="return confirm('Yakin ingin menghapus user ini?')">
+                                                Hapus
+                                            </button>
+                                        </form>
+                                    </div>
                                 </td>
                             </tr>
-                            <td class="px-6 py-4 whitespace-nowrap text-right">
-                                @if($user->is_active)
-                                    <form method="POST" action="{{ route('admin.users.toggle', $user->id) }}" class="inline">
-                                        @csrf
-                                        @method('PATCH')
-                                        <button type="submit" class="text-orange-600 hover:text-orange-800">
-                                            Nonaktifkan
-                                        </button>
-                                    </form>
-                                @else
-                                    <form method="POST" action="{{ route('admin.users.toggle', $user->id) }}" class="inline">
-                                        @csrf
-                                        @method('PATCH')
-                                        <button type="submit" class="text-green-600 hover:text-green-800">
-                                            Aktifkan
-                                        </button>
-                                    </form>
-                                @endif
-                                <!-- Tombol Hapus tetap ada -->
-                                <form method="POST" action="{{ route('admin.users.delete', $user->id) }}" class="inline">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="text-red-600 hover:text-red-900 ml-3">Hapus</button>
-                                </form>
-                            </td>
                         @endforeach
                     </tbody>
                 </table>
             </div>
-            <div class="mt-4">
+
+            <!-- Pagination -->
+            <div class="mt-6">
                 {{ $users->links() }}
             </div>
         @else
-            <div class="text-center py-12">
-                <p class="text-gray-600">Belum ada user.</p>
+            <div class="bg-white rounded-xl shadow-lg text-center py-12">
+                <svg class="w-24 h-24 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                </svg>
+                <h4 class="text-xl font-semibold text-gray-600 mb-2">Belum ada user</h4>
+                <p class="text-gray-500">User akan muncul setelah melakukan registrasi</p>
             </div>
         @endif
+        <a href="{{ route('admin.dashboard') }}" class="bg-gray-600 hover:bg-gray-700 text-white px-6 py-2 rounded-lg transition duration-200 font-medium">
+                ← Kembali ke Dashboard
+            </a>
     </div>
 </body>
 </html>

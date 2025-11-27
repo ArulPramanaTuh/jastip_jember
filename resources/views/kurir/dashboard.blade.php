@@ -5,41 +5,127 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kurir Dashboard - Jastip Jember</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @keyframes pulse-ring {
+            0% {
+                transform: scale(0.8);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(1.3);
+                opacity: 0;
+            }
+        }
+        
+        .pulse-ring {
+            animation: pulse-ring 1.5s ease-out infinite;
+        }
+        
+        .toggle-switch {
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        
+        .toggle-switch:hover {
+            transform: scale(1.05);
+        }
+        
+        .status-badge {
+            animation: slideIn 0.3s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+    </style>
 </head>
 <body class="bg-gradient-to-br from-green-50 to-emerald-100 min-h-screen">
-        <!-- Navbar -->
-        <nav class="bg-white shadow-lg">
-            <div class="container mx-auto px-4 py-4">
-                <div class="flex justify-between items-center">
-                    <div class="flex items-center space-x-3">
-                        <div class="bg-emerald-600 text-white rounded-full p-3">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                            </svg>
-                        </div>
-                        <div>
-                            <h1 class="text-2xl font-bold text-gray-800">Jastip Jember</h1>
-                            <p class="text-sm text-gray-600">Kurir Dashboard</p>
-                        </div>
+    <!-- Navbar -->
+    <nav class="bg-white shadow-lg">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center space-x-3">
+                    <div class="bg-emerald-600 text-white rounded-full p-3">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
                     </div>
-                    <div class="flex items-center space-x-4">
-                        <span class="text-gray-700 font-medium">{{ $kurir->name }}</span>
-
-                        <!-- ✅ Tambahkan Tombol Profil di Sini -->
-                        <a href="{{ route('kurir.profile.show') }}" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg transition duration-200">
-                            Profil
-                        </a>
-
-                        <form method="POST" action="{{ route('logout') }}">
-                            @csrf
-                            <button type="submit" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition duration-200">
-                                Logout
-                            </button>
-                        </form>
+                    <div>
+                        <h1 class="text-2xl font-bold text-gray-800">Jastip Jember</h1>
+                        <p class="text-sm text-gray-600">Kurir Dashboard</p>
                     </div>
                 </div>
+                <div class="flex items-center space-x-6">
+                    <span class="text-gray-700 font-medium">{{ $kurir->name }}</span>
+
+                    <!-- Enhanced Toggle Availability Button -->
+                    <div class="flex items-center space-x-3">
+                        <!-- Status Badge -->
+                        <div class="status-badge">
+                            @if($kurir->is_available)
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800 border border-green-300">
+                                    <span class="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></span>
+                                    Online
+                                </span>
+                            @else
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-800 border border-gray-300">
+                                    <span class="w-2 h-2 bg-gray-500 rounded-full mr-2"></span>
+                                    Offline
+                                </span>
+                            @endif
+                        </div>
+
+                        <!-- Toggle Button -->
+                        <form method="POST" action="{{ route('kurir.toggle-availability') }}" class="relative">
+                            @csrf
+                            @method('PATCH')
+                            <div class="relative">
+                                @if($kurir->is_available)
+                                    <!-- Pulse Ring for Active State -->
+                                    <div class="absolute inset-0 bg-green-400 rounded-full pulse-ring"></div>
+                                @endif
+                                
+                                <button type="submit" 
+                                    class="toggle-switch relative flex items-center justify-center w-14 h-14 rounded-full shadow-lg transition-all duration-300 {{ $kurir->is_available ? 'bg-gradient-to-br from-green-500 to-green-600 hover:from-green-600 hover:to-green-700' : 'bg-gradient-to-br from-gray-400 to-gray-500 hover:from-gray-500 hover:to-gray-600' }}"
+                                    title="{{ $kurir->is_available ? 'Klik untuk offline' : 'Klik untuk online' }}">
+                                    
+                                    @if($kurir->is_available)
+                                        <!-- Power On Icon -->
+                                        <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                        </svg>
+                                    @else
+                                        <!-- Power Off Icon -->
+                                        <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                                        </svg>
+                                    @endif
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <a href="{{ route('kurir.profile.show') }}" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg transition duration-200 shadow-md hover:shadow-lg">
+                        Profil
+                    </a>
+
+                    <form method="POST" action="{{ route('logout') }}">
+                        @csrf
+                        <button type="submit" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition duration-200 shadow-md hover:shadow-lg">
+                            Logout
+                        </button>
+                    </form>
+                </div>
             </div>
-        </nav>
+        </div>
+    </nav>
 
     <!-- Main Content -->
     <div class="container mx-auto px-4 py-8">

@@ -18,6 +18,8 @@ class User extends Authenticatable
         'phone',
         'address',
         'profile_photo_path',
+        'is_active',
+        'is_available',
     ];
 
     protected $hidden = [
@@ -66,5 +68,15 @@ class User extends Authenticatable
     public function receivedChats()
     {
         return $this->hasMany(\App\Models\Chat::class, 'receiver_id');
+    }
+
+    public function addresses()
+    {
+        return $this->hasMany(Address::class);
+    }
+
+    public function defaultAddress()
+    {
+        return $this->hasOne(Address::class)->where('is_default', true);
     }
 }
