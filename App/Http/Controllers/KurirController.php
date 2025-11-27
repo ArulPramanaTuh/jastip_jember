@@ -19,6 +19,23 @@ class KurirController extends Controller
         return view('kurir.dashboard', compact('kurir', 'myOrders', 'totalOrders', 'activeOrders', 'completedOrders'));
     }
 
+    // Toggle availability kurir
+    public function toggleAvailability()
+    {
+        $kurir = Auth::user();
+
+        if ($kurir->role !== 'kurir') {
+            abort(403, 'Akses ditolak.');
+        }
+
+        $kurir->update([
+            'is_available' => !$kurir->is_available
+        ]);
+
+        $status = $kurir->is_available ? 'aktif' : 'nonaktif';
+        return back()->with('success', "Status kamu sekarang: $status.");
+    }
+
     // Lihat semua order yang di-assign ke kurir ini
     public function orders()
     {

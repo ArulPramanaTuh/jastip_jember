@@ -44,16 +44,19 @@
         <!-- Kartu Profil -->
         <div class="bg-white rounded-xl shadow-lg p-6 max-w-4xl mx-auto">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <!-- Kolom Kiri: Avatar & Nama -->
                 <div class="md:col-span-1 flex flex-col items-center">
-                    <div class="w-24 h-24 bg-gray-300 rounded-full flex items-center justify-center text-3xl font-bold text-gray-600 mb-4">
-                        {{ substr(auth()->user()->name, 0, 1) }}
-                    </div>
+                    <!-- Tampilkan Foto Profil -->
+                <div class="w-24 h-24 bg-gray-300 rounded-full flex items-center justify-center text-3xl font-bold text-gray-600 mb-4">
+                    @if($user->profile_photo_path)
+                        <img src="{{ asset('storage/' . $user->profile_photo_path) }}" alt="Foto Profil" class="w-full h-full rounded-full object-cover">
+                    @else
+                        {{ substr($user->name, 0, 1) }}
+                    @endif
+                </div>
                     <h3 class="text-xl font-semibold text-gray-800">{{ auth()->user()->name }}</h3>
                     <p class="text-gray-600">{{ auth()->user()->email }}</p>
                 </div>
 
-                <!-- Kolom Kanan: Informasi Akun -->
                 <div class="md:col-span-2">
                     <h4 class="text-lg font-semibold text-gray-800 mb-4">Informasi Akun</h4>
                     <div class="space-y-4">
@@ -78,8 +81,6 @@
                             <span class="font-medium">{{ $user->created_at->format('d M Y H:i') }}</span>
                         </div>
                     </div>
-
-                    <!-- Tombol Edit Profil & Kembali ke Dashboard -->
                     <div class="mt-6 flex justify-center space-x-4">
                         <a href="{{ route('user.profile.edit') }}" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-lg">
                             Edit Profil

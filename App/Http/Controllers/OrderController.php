@@ -11,7 +11,8 @@ class OrderController extends Controller
     // Tampilkan form buat order baru
     public function create()
     {
-        return view('user.orders.create');
+        $user = Auth::user()->load('addresses');
+        return view('user.orders.create', compact('user'));
     }
 
     // Simpan order baru ke database
@@ -20,7 +21,7 @@ class OrderController extends Controller
         $request->validate([
             'item_name' => 'required|string|max:255',
             'purchase_location' => 'required|string|max:500',
-            'delivery_address' => 'required|string|max:500',
+            'address_id' => 'required|exists:addresses,id,user_id,' . Auth::id(), 
             'estimated_price' => 'required|numeric|min:0',
         ]);
 
@@ -33,6 +34,7 @@ class OrderController extends Controller
         'item_price' => $request->estimated_price,
         'estimated_price' => $request->estimated_price,
         'pickup_address' => $request->purchase_location,
+        'delivery_address' => $address->address,
         'delivery_address' => $request->delivery_address,
         'shipping_cost' => $shipping_cost,
         'total_price' => $request->estimated_price + $shipping_cost,

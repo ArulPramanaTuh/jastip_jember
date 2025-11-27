@@ -50,7 +50,7 @@ class AdminController extends Controller
         $order = Order::findOrFail($orderId);
         
         $request->validate([
-            'kurir_id' => 'required|exists:users,id,role,kurir',
+            'kurir_id' => 'required|exists:users,id,role,kurir,is_available,1',
         ]);
 
         $order->update([

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class AdminProfileController extends Controller
 {
@@ -29,18 +30,21 @@ class AdminProfileController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|max:255|unique:users,email,' . $user->id,
+            'phone' => 'nullable|string|max:20',
             'password' => 'nullable|string|min:8|confirmed',
+            'profile_photo' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
         ]);
 
-        $user->update([
+        // Siapkan data untuk update
+        $data = [
             'name' => $request->name,
             'email' => $request->email,
-        ]);
+            'phone' => $request->phone,
+        ];
 
+        // Update password jika diisi
         if ($request->filled('password')) {
-            $user->update([
-                'password' => bcrypt($request->password),
-            ]);
+            $data['password'] = bcrypt($request->password);
         }
         
         // Upload foto profil jika ada
@@ -55,8 +59,9 @@ class AdminProfileController extends Controller
             $data['profile_photo_path'] = $path;
         }
 
+        // Update semua data sekaligus
         $user->update($data);
 
         return redirect()->route('admin.profile.show')->with('success', 'Profil berhasil diperbarui!');
     }
-} 
+}

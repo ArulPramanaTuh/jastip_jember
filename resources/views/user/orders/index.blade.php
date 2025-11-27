@@ -69,13 +69,17 @@
                         </div>
 
                         <!-- Tombol Lihat Detail -->
-                        <div class="mt-4 text-center">
+                        <div class="mt-4 text-center space-x-2">
                             <a href="{{ route('user.orders.show', $order->id) }}" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg">
                                 Lihat Detail
                             </a>
-                            <a href="{{ route('user.tracking.show', $order->id) }}" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg inline-block">
-                                Lacak Pesanan
-                            </a>
+
+                            <!-- Tombol Lacak Pesanan (muncul hanya jika status != completed) -->
+                            @if($order->status !== 'completed')
+                                <a href="{{ route('user.tracking.show', $order->id) }}" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg inline-block">
+                                    Lacak Pesanan
+                                </a>
+                            @endif
                         </div>
                     </div>
                 @endforeach

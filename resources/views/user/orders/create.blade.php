@@ -24,6 +24,9 @@
                 </div>
                 <div class="flex items-center space-x-4">
                     <span class="text-gray-700 font-medium">{{ Auth::user()->name }}</span>
+                    <a href="{{ route('user.profile.show') }}" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg transition duration-200">
+                        Profil
+                    </a>
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
                         <button type="submit" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition duration-200">
@@ -39,6 +42,12 @@
     <div class="container mx-auto px-4 py-8">
         <h2 class="text-3xl font-bold text-gray-800 mb-6">Buat Pesanan Baru</h2>
 
+        @if(session('success'))
+            <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-6">
+                {{ session('success') }}
+            </div>
+        @endif
+
         <div class="bg-white rounded-xl shadow-lg p-6">
             <form method="POST" action="{{ route('user.orders.store') }}">
                 @csrf
@@ -53,7 +62,11 @@
                         required
                         class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                         placeholder="Contoh: Baju, Sepatu, Makanan, dll"
+                        value="{{ old('item_name') }}"
                     >
+                    @error('item_name')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
                 </div>
 
                 <!-- Purchase Location -->
@@ -66,20 +79,37 @@
                         required
                         class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                         placeholder="Contoh: Jl. Hayam Wuruk No. 10, Jember"
+                        value="{{ old('purchase_location') }}"
                     >
+                    @error('purchase_location')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
                 </div>
 
-                <!-- Delivery Address -->
+                <!-- Pilih Alamat -->
                 <div class="mb-6">
-                    <label for="delivery_address" class="block text-sm font-medium text-gray-700 mb-2">Alamat Pengiriman</label>
-                    <textarea
-                        id="delivery_address"
-                        name="delivery_address"
-                        required
-                        rows="3"
-                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        placeholder="Contoh: Jl. Raya Kediri No. 20, Kec. Sumbersari, Jember"
-                    ></textarea>
+                    <label for="address_id" class="block text-sm font-medium text-gray-700 mb-2">Pilih Alamat Pengiriman</label>
+                    @if($user->addresses->count() > 0)
+                        <select
+                            name="address_id"
+                            id="address_id"
+                            required
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        >
+                            <option value="">-- Pilih Alamat --</option>
+                            @foreach($user->addresses as $address)
+                                <option value="{{ $address->id }}" {{ old('address_id') == $address->id ? 'selected' : '' }}>
+                                    {{ $address->label }}: {{ Str::limit($address->address, 50) }}
+                                </option>
+                            @endforeach
+                        </select>
+                    @else
+                        <p class="text-gray-600">Kamu belum punya alamat tersimpan.</p>
+                        <a href="{{ route('user.profile.edit') }}" class="text-indigo-600 hover:underline">Tambah Alamat Baru</a>
+                    @endif
+                    @error('address_id')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
                 </div>
 
                 <!-- Estimated Price -->
@@ -93,11 +123,18 @@
                         min="0"
                         class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                         placeholder="Contoh: 100000"
+                        value="{{ old('estimated_price') }}"
                     >
+                    @error('estimated_price')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
                 </div>
 
                 <!-- Submit Button -->
-                <div class="mt-8 text-center">
+                <div class="flex justify-between">
+                    <a href="{{ route('user.dashboard') }}" class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-lg">
+                        ← Kembali ke Dashboard
+                    </a>
                     <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg transition duration-200">
                         Buat Pesanan
                     </button>

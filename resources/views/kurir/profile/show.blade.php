@@ -46,7 +46,6 @@
                 ← Kembali ke Dashboard
             </a> -->
         </div>
-
         <div class="bg-white rounded-xl shadow-lg p-6 max-w-4xl mx-auto">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                 <!-- Kolom Kiri: Avatar & Nama -->
